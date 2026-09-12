@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0d10">
+<meta name="description" content="ZΞN0M — a minimal, personal browser homepage.">
+<title>ZΞN0M</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root{
+  --bg:#090b0f;--fg:#fff;--muted:rgba(255,255,255,.68);--glass:rgba(15,17,22,.42);
+  --line:rgba(255,255,255,.13);--shadow:0 20px 70px rgba(0,0,0,.35);
+  --radius:24px;--accent:#fff;--overlay:.28;--blur:0px;
+}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--fg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input{font:inherit}
+button{color:inherit}
+#wallpaper{position:fixed;inset:-2%;z-index:0;background:center/cover no-repeat;filter:blur(var(--blur));transform:scale(1.02);transition:filter .5s}
+#shade{position:fixed;inset:0;z-index:1;background:linear-gradient(180deg,rgba(0,0,0,.28),rgba(0,0,0,var(--overlay)) 55%,rgba(0,0,0,.48))}
+#app{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;padding:max(22px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left))}
+.top{display:flex;align-items:center;justify-content:space-between}
+.brand{font-family:ui-sans-serif,system-ui,sans-serif;font-size:23px;letter-spacing:.01em;font-weight:700;opacity:.96;user-select:none;text-shadow:0 3px 22px rgba(0,0,0,.28)}
+.icon-btn{width:42px;height:42px;border:1px solid var(--line);border-radius:50%;background:rgba(10,12,16,.28);backdrop-filter:blur(14px);display:grid;place-items:center;cursor:pointer;transition:.2s}
+.icon-btn:active{transform:scale(.94)}
+.icon{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.center{width:min(720px,100%);margin:auto;display:flex;flex-direction:column;align-items:center;gap:24px;transform:translateY(-2vh)}
+.clock{text-align:center}
+.time{font-size:clamp(52px,16vw,104px);line-height:.9;letter-spacing:-.055em;font-weight:250;text-shadow:0 5px 30px rgba(0,0,0,.22)}
+.date{margin-top:15px;color:var(--muted);font-size:13px;letter-spacing:.06em}
+.search-wrap{width:100%;position:relative;z-index:20}
+.search{height:62px;width:100%;border:1px solid rgba(255,255,255,.19);border-radius:22px;background:rgba(14,16,21,.42);backdrop-filter:blur(22px) saturate(130%);box-shadow:var(--shadow);display:flex;align-items:center;padding:0 9px 0 17px;transition:.25s}
+.search:focus-within{border-color:rgba(255,255,255,.38);background:rgba(14,16,21,.55)}
+.engine{position:relative;flex:none;z-index:30}
+.engine-btn{height:43px;padding:0 11px;border:0;border-radius:14px;background:rgba(255,255,255,.08);display:flex;align-items:center;gap:8px;cursor:pointer}
+.engine-mark{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:10px;font-weight:800;background:rgba(255,255,255,.94);color:#111;box-shadow:0 3px 12px rgba(0,0,0,.18)}
+.engine-name{font-size:12px;color:rgba(255,255,255,.78)}
+.chev{width:13px;height:13px}
+.engine-menu{display:none;position:absolute;top:calc(100% + 8px);left:-4px;width:205px;padding:6px;border:1px solid var(--line);border-radius:17px;background:rgba(16,18,23,.88);backdrop-filter:blur(22px);box-shadow:var(--shadow)}
+.engine.open .engine-menu{display:block}
+.engine-option{width:100%;padding:11px;border:0;border-radius:12px;background:transparent;text-align:left;cursor:pointer;color:#fff;font-size:13px}
+.engine-option:hover{background:rgba(255,255,255,.08)}
+#query{min-width:0;flex:1;border:0;outline:0;background:transparent;color:#fff;padding:0 13px;font-size:16px}
+#query::placeholder{color:rgba(255,255,255,.48)}
+.go{width:44px;height:44px;border:0;border-radius:15px;background:#fff;color:#101114;display:grid;place-items:center;cursor:pointer;transition:.2s}
+.go:active{transform:scale(.94)}
+.go .icon{stroke:#111}
+.shortcuts{position:relative;z-index:1;display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
+.x-mark{font-size:22px;line-height:1;font-weight:500;display:inline-flex;align-items:center;justify-content:center}
+.shortcut{height:42px;padding:0 14px;border:1px solid var(--line);border-radius:13px;background:rgba(12,14,18,.28);backdrop-filter:blur(14px);display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.82);font-size:12px;cursor:pointer;transition:transform .18s,border-color .18s,background .18s}
+.shortcut .icon{width:16px;height:16px}.shortcut:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.22);transform:translateY(-1px)}
+.bottom{display:flex;justify-content:center;min-height:42px}
+.hint{font-size:11px;color:rgba(255,255,255,.48);letter-spacing:.02em}
+#settings{position:fixed;z-index:5;right:14px;top:14px;width:min(350px,calc(100vw - 28px));max-height:calc(100dvh - 28px);overflow:auto;padding:18px;border:1px solid var(--line);border-radius:26px;background:rgba(13,15,20,.82);backdrop-filter:blur(30px);box-shadow:var(--shadow);transform:translateY(-15px) scale(.98);opacity:0;pointer-events:none;transition:.25s}
+#settings.show{transform:none;opacity:1;pointer-events:auto}
+.settings-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.settings-title{font-size:15px;font-weight:650}
+.close{border:0;background:transparent;width:36px;height:36px;border-radius:50%;cursor:pointer}
+.row{padding:14px 0;border-top:1px solid rgba(255,255,255,.08)}
+.row:first-of-type{border-top:0}
+.label{display:flex;justify-content:space-between;gap:15px;font-size:13px;margin-bottom:11px}
+.sub{color:rgba(255,255,255,.45);font-size:11px;margin-top:4px}
+input[type=range]{width:100%;accent-color:#fff}
+.action{width:100%;height:43px;border:1px solid var(--line);background:rgba(255,255,255,.06);border-radius:13px;text-align:left;padding:0 13px;cursor:pointer;font-size:12px}
+.toggle{width:44px;height:25px;border-radius:99px;border:0;background:rgba(255,255,255,.15);padding:3px;cursor:pointer}
+.toggle i{display:block;width:19px;height:19px;border-radius:50%;background:#fff;transition:.2s}
+.toggle.on{background:#fff}.toggle.on i{transform:translateX(19px);background:#111}
+.ambient #ui{opacity:.14}.ambient .icon-btn,.ambient .shortcut,.ambient .search{opacity:.2}
+
+.footer a{color:rgba(255,255,255,.65);text-decoration:none}.footer a:hover{text-decoration:underline}
+#addShortcut{position:fixed;z-index:6;right:14px;top:14px;width:min(350px,calc(100vw - 28px));padding:18px;border:1px solid var(--line);border-radius:26px;background:rgba(13,15,20,.9);backdrop-filter:blur(30px);box-shadow:var(--shadow);opacity:0;visibility:hidden;transform:translateY(-12px) scale(.98);transition:.2s}
+#addShortcut.show{opacity:1;visibility:visible;transform:none}.field{width:100%;height:44px;border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.05);color:#fff;padding:0 12px;outline:0}.form-actions{display:flex;gap:8px;margin-top:13px}.form-actions button{flex:1;height:43px;border-radius:13px;border:1px solid var(--line);background:rgba(255,255,255,.06);cursor:pointer}.form-actions .primary{background:#fff;color:#111}
+.shortcut.add{width:40px;padding:0;justify-content:center}
+@media(max-width:520px){
+  #app{padding-left:14px;padding-right:14px}
+  .search{height:58px;border-radius:20px;padding-left:10px}
+  .engine-name{display:none}.engine-btn{padding:0 9px}
+  #query{font-size:15px;padding:0 8px}
+  .go{width:41px;height:41px}
+  .shortcuts{gap:7px}.shortcut{padding:0 10px}
+}
+
+/* Footer credits */
+.bottom{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center}
+.bottom .copyright{font-size:11px;letter-spacing:.08em;opacity:.58}
+.bottom .credits{display:flex;align-items:center;justify-content:center;gap:9px;white-space:nowrap;font-size:11px;letter-spacing:.02em}
+.bottom .credits a{color:inherit;text-decoration:none;opacity:.72;transition:opacity .2s ease}
+.bottom .credits a:hover,.bottom .credits a:focus-visible{opacity:1}
+.bottom .credits span{opacity:.38}
+@media(max-width:420px){.bottom .credits{font-size:10.5px;gap:7px}}
+/* Leave confirmation */
+.leave-backdrop{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(0,0,0,.58);backdrop-filter:blur(12px)}
+.leave-backdrop.show{display:flex}
+.leave-card{width:min(100%,360px);padding:24px;border:1px solid rgba(255,255,255,.13);border-radius:22px;background:rgba(20,23,29,.94);box-shadow:0 24px 70px rgba(0,0,0,.45);text-align:left}
+.leave-card h2{margin:0 0 8px;font-size:19px;letter-spacing:-.02em}.leave-card p{margin:0;color:rgba(255,255,255,.62);font-size:13px;line-height:1.55}
+.leave-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}.leave-actions button{min-width:82px;padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.07);color:inherit;font:inherit;cursor:pointer}.leave-actions .leave-confirm{background:rgba(255,255,255,.14)}
+</style>
+</head>
+<body>
+<div id="wallpaper"></div><div id="shade"></div>
+<div id="app">
+  <div id="ui">
+    <div class="top">
+      <div class="brand">𝐙Ξ𝐍𝟘𝐌</div>
+      <button class="icon-btn" id="settingsBtn" aria-label="Open settings">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 12h2M10 12h10M4 17h10M18 17h2"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="17" r="2"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <main class="center">
+    <div class="clock"><div class="time" id="time">00:00</div><div class="date" id="date"></div></div>
+    <form class="search-wrap" id="searchForm">
+      <div class="search">
+        <div class="engine" id="engine">
+          <button type="button" class="engine-btn" id="engineBtn">
+            <span class="engine-mark" id="engineMark">G</span><span class="engine-name" id="engineName">Google</span>
+            <svg class="icon chev" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg>
+          </button>
+          <div class="engine-menu" id="engineMenu"></div>
+        </div>
+        <input id="query" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Search the web" aria-label="Search the web">
+        <button class="go" aria-label="Search">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.4"/><path d="m16 16 4.5 4.5"/></svg>
+        </button>
+      </div>
+    </form>
+    <div class="shortcuts" id="shortcuts"></div>
+  </main>
+  <footer class="bottom">
+  <div class="copyright">© 2026 𝐙Ξ𝐍𝟘𝐌</div>
+  <div class="credits">
+    <a href="https://www.instagram.com/Pvt_Shivaayu/" target="_blank" rel="noopener">@Pvt_Shivaayu</a>
+    <span aria-hidden="true">|</span>
+    <a href="https://www.instagram.com/Selfish_Senpaiii/" target="_blank" rel="noopener">@Selfish_Senpaiii</a>
+  </div>
+</footer>
+</div>
+
+<aside id="addShortcut" aria-hidden="true"><div class="settings-head"><div class="settings-title">Add shortcut</div><button class="close" id="closeAdd" aria-label="Close">×</button></div><div class="row"><div class="label">Name</div><input class="field" id="shortcutName" maxlength="24" placeholder="e.g. ChatGPT"></div><div class="row"><div class="label">Web address</div><input class="field" id="shortcutUrl" inputmode="url" placeholder="https://example.com"></div><div class="form-actions"><button id="cancelAdd">Cancel</button><button class="primary" id="saveShortcut">Add shortcut</button></div></aside>
+<aside id="settings" aria-hidden="true">
+  <div class="settings-head"><div class="settings-title">𝐙Ξ𝐍𝟘𝐌 Settings</div><button class="close" id="closeSettings" aria-label="Close">×</button></div>
+  <div class="row">
+    <div class="label"><div>Wallpaper</div><div id="wallpaperName">Default</div></div>
+    <button class="action" id="uploadBtn">Choose a photo</button><input id="file" type="file" accept="image/*" hidden>
+    <div style="height:8px"></div><button class="action" id="resetWallpaper">Reset wallpaper</button>
+  </div>
+  <div class="row"><div class="label"><div>Darkness</div><div id="overlayValue">28%</div></div><input id="overlay" type="range" min="0" max="70" value="28"></div>
+  <div class="row"><div class="label"><div>Blur</div><div id="blurValue">0px</div></div><input id="blur" type="range" min="0" max="14" value="0"></div>
+  <div class="row">
+    <div class="label"><div><div>24-hour clock</div><div class="sub">Use 24-hour time on the homepage.</div></div><button class="toggle" id="clockToggle"><i></i></button></div>
+  </div>
+  <div class="row">
+    <div class="label"><div><div>Ambient mode</div><div class="sub">Reduce interface visibility after a short idle period.</div></div><button class="toggle" id="ambientToggle"><i></i></button></div>
+  </div>
+</aside>
+
+<script>
+const engines={
+ google:{name:"Google",mark:"G",url:q=>"https://www.google.com/search?q="+encodeURIComponent(q)},
+ brave:{name:"Brave",mark:"B",url:q=>"https://search.brave.com/search?q="+encodeURIComponent(q)},
+ duck:{name:"DuckDuckGo",mark:"D",url:q=>"https://duckduckgo.com/?q="+encodeURIComponent(q)},
+ bing:{name:"Bing",mark:"b",url:q=>"https://www.bing.com/search?q="+encodeURIComponent(q)},
+ youtube:{name:"YouTube",mark:"▶",url:q=>"https://www.youtube.com/results?search_query="+encodeURIComponent(q)}
+};
+const shortcuts=[
+  ["Instagram","instagram","https://www.instagram.com/"],
+  ["Facebook","facebook","https://www.facebook.com/"],
+  ["YouTube","youtube","https://www.youtube.com/"],
+  ["X","x","https://x.com/"]
+];
+const icons={
+instagram:'<svg class="icon" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.7" r="1"/></svg>',
+facebook:'<svg class="icon" viewBox="0 0 24 24"><path d="M14 21v-8h2.7l.4-3H14V8.1c0-.9.3-1.6 1.7-1.6h1.7V3.8c-.3 0-1.4-.1-2.7-.1-2.7 0-4.5 1.7-4.5 4.6V10H7.5v3h2.7v8"/></svg>',
+x:'<span class="x-mark" aria-hidden="true">𝕏</span>',
+plus:'<svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+youtube:'<svg class="icon" viewBox="0 0 24 24"><path d="M21 8.1a2.6 2.6 0 0 0-1.8-1.8C17.6 6 12 6 12 6s-5.6 0-7.2.3A2.6 2.6 0 0 0 3 8.1 27 27 0 0 0 2.7 12 27 27 0 0 0 3 15.9a2.6 2.6 0 0 0 1.8 1.8c1.6.3 7.2.3 7.2.3s5.6 0 7.2-.3a2.6 2.6 0 0 0 1.8-1.8 27 27 0 0 0 .3-3.9 27 27 0 0 0-.3-3.9Z"/><path d="m10 15 5-3-5-3v6Z"/></svg>',
+code:'<svg class="icon" viewBox="0 0 24 24"><path d="m8 9-4 3 4 3M16 9l4 3-4 3M14 5l-4 14"/></svg>',
+mail:'<svg class="icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>',
+chat:'<svg class="icon" viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-8 7.5 8.4 8.4 0 0 1-3-.6L4 20l1.5-4A7.4 7.4 0 0 1 4.5 12 7.5 7.5 0 0 1 12 4.5a7.5 7.5 0 0 1 8 7Z"/></svg>'
+};
+
+const qs=s=>document.querySelector(s);
+let state=JSON.parse(localStorage.getItem("zenom")||"{}");
+state.engine=state.engine||"google"; state.clock24=state.clock24??false; state.overlay=state.overlay??28; state.blur=state.blur??0; state.ambient=state.ambient??false;
+function save(){localStorage.setItem("zenom",JSON.stringify(state))}
+function tick(){
+ const d=new Date(), opts={hour:"2-digit",minute:"2-digit",hour12:!state.clock24};
+ qs("#time").textContent=d.toLocaleTimeString([],opts);
+ qs("#date").textContent=d.toLocaleDateString([], {weekday:"long",day:"numeric",month:"long",year:"numeric"});
+}
+setInterval(tick,1000); tick();
+
+function renderEngines(){
+ qs("#engineMenu").innerHTML=Object.entries(engines).map(([id,e])=>`<button class="engine-option" data-engine="${id}">${e.name}</button>`).join("");
+ const e=engines[state.engine];qs("#engineMark").textContent=e.mark;qs("#engineName").textContent=e.name;
+}
+renderEngines();
+qs("#engineBtn").onclick=()=>qs("#engine").classList.toggle("open");
+document.addEventListener("click",e=>{
+ const opt=e.target.closest(".engine-option"); if(opt){state.engine=opt.dataset.engine;save();renderEngines();qs("#engine").classList.remove("open")}
+ if(!e.target.closest("#engine")) qs("#engine").classList.remove("open");
+});
+function browserNavigate(url){
+  // Explicitly target Chrome on Android so web searches stay in Chrome
+  // instead of being handed to Google Go or another installed app.
+  try{
+    const u=new URL(url);
+    const intent="intent://"+u.host+u.pathname+u.search+"#Intent;scheme=https;package=com.android.chrome;end";
+    window.location.href=intent;
+  }catch(err){ window.location.assign(url); }
+}
+qs("#searchForm").onsubmit=e=>{e.preventDefault();const q=qs("#query").value.trim();if(q) browserNavigate(engines[state.engine].url(q))};
+function renderShortcuts(){
+ const custom=JSON.parse(localStorage.getItem("zenom-custom")||"[]");
+ const all=shortcuts.concat(custom.map(x=>[x.name,"plus",x.url]));
+ qs("#shortcuts").innerHTML=all.map(([n,ic,url])=>`<button class="shortcut ${ic==='x'?'icon-only':''}" data-url="${encodeURIComponent(url)}" aria-label="${n}">${icons[ic]||icons.plus}${ic==='x'?'':`<span>${n}</span>`}</button>`).join("")+`<button class="shortcut add" id="addShortcutBtn" aria-label="Add shortcut">${icons.plus}</button>`;
+ document.querySelectorAll(".shortcut[data-url]").forEach(b=>b.onclick=()=>browserNavigate(decodeURIComponent(b.dataset.url)));
+ qs("#addShortcutBtn").onclick=()=>qs("#addShortcut").classList.add("show");
+}
+renderShortcuts();
+
+function apply(){
+ document.documentElement.style.setProperty("--overlay",(state.overlay/100).toFixed(2));
+ document.documentElement.style.setProperty("--blur",state.blur+"px");
+ qs("#overlay").value=state.overlay;qs("#blur").value=state.blur;
+ qs("#overlayValue").textContent=state.overlay+"%";qs("#blurValue").textContent=state.blur+"px";
+ qs("#clockToggle").classList.toggle("on",state.clock24);qs("#ambientToggle").classList.toggle("on",state.ambient);
+ if(state.wallpaper){qs("#wallpaper").style.backgroundImage=`url(${state.wallpaper})`;qs("#wallpaperName").textContent="Custom photo"} else {qs("#wallpaper").style.backgroundImage="linear-gradient(135deg,#11151b,#252b35)";qs("#wallpaperName").textContent="Default"}
+}
+apply();
+
+qs("#settingsBtn").onclick=()=>{qs("#settings").classList.add("show");qs("#settings").setAttribute("aria-hidden","false")};
+qs("#closeSettings").onclick=()=>{qs("#settings").classList.remove("show");qs("#settings").setAttribute("aria-hidden","true")};
+qs("#overlay").oninput=e=>{state.overlay=+e.target.value;save();apply()};
+qs("#blur").oninput=e=>{state.blur=+e.target.value;save();apply()};
+qs("#clockToggle").onclick=()=>{state.clock24=!state.clock24;save();apply();tick()};
+qs("#ambientToggle").onclick=()=>{state.ambient=!state.ambient;save();apply()};
+qs("#uploadBtn").onclick=()=>qs("#file").click();
+qs("#file").onchange=e=>{
+ const f=e.target.files[0];if(!f)return;
+ const r=new FileReader();r.onload=()=>{state.wallpaper=r.result;save();apply()};r.readAsDataURL(f);
+};
+qs("#resetWallpaper").onclick=()=>{delete state.wallpaper;save();apply()};
+qs("#closeAdd").onclick=()=>qs("#addShortcut").classList.remove("show");
+qs("#cancelAdd").onclick=()=>qs("#addShortcut").classList.remove("show");
+qs("#saveShortcut").onclick=()=>{
+ let name=qs("#shortcutName").value.trim(),url=qs("#shortcutUrl").value.trim();
+ if(!name||!url){alert("Please enter a name and web address.");return}
+ if(!/^https?:\/\//i.test(url))url="https://"+url;
+ try{new URL(url)}catch(e){alert("Please enter a valid web address.");return}
+ const custom=JSON.parse(localStorage.getItem("zenom-custom")||"[]"); custom.push({name,url}); localStorage.setItem("zenom-custom",JSON.stringify(custom));
+ qs("#shortcutName").value="";qs("#shortcutUrl").value="";qs("#addShortcut").classList.remove("show");renderShortcuts();
+};
+
+let idle;
+function resetIdle(){document.body.classList.remove("ambient-idle");clearTimeout(idle);if(state.ambient)idle=setTimeout(()=>document.body.classList.add("ambient-idle"),12000)}
+["pointermove","keydown","touchstart"].forEach(x=>addEventListener(x,resetIdle));resetIdle();
+
+// Intercept Android/Chrome Back once so ZΞN0M does not silently close.
+let allowLeave=false, leaveOpen=false;
+history.pushState({zenomStay:true},"",location.href);
+function showLeaveConfirm(){if(leaveOpen)return;leaveOpen=true;qs("#leaveConfirm").classList.add("show");qs("#leaveConfirm").setAttribute("aria-hidden","false")}
+function hideLeaveConfirm(){leaveOpen=false;qs("#leaveConfirm").classList.remove("show");qs("#leaveConfirm").setAttribute("aria-hidden","true")}
+addEventListener("popstate",()=>{if(allowLeave){allowLeave=false;return}history.pushState({zenomStay:true},"",location.href);showLeaveConfirm()});
+qs("#stayBtn").onclick=()=>hideLeaveConfirm();
+qs("#leaveBtn").onclick=()=>{hideLeaveConfirm();allowLeave=true;history.go(-1)};
+qs("#leaveConfirm").addEventListener("click",e=>{if(e.target.id==="leaveConfirm")hideLeaveConfirm()});
+</script>
+
+<div class="leave-backdrop" id="leaveConfirm" aria-hidden="true">
+  <div class="leave-card" role="dialog" aria-modal="true" aria-labelledby="leaveTitle">
+    <h2 id="leaveTitle">Leave ZΞN0M?</h2>
+    <p>Are you sure you want to leave this homepage?</p>
+    <div class="leave-actions"><button type="button" id="stayBtn">Stay</button><button type="button" class="leave-confirm" id="leaveBtn">Leave</button></div>
+  </div>
+</div>
+</body></html>
